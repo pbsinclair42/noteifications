@@ -4,6 +4,9 @@ body{
     line-height: 1.5;
     margin: 0;
     min-width: 250px;
+    min-height: 100px;
+    font-size: 16px;
+    text-align: center;
 }
 #header{
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #700), color-stop(1, #500));
@@ -17,7 +20,6 @@ body{
 }
 #header li{
     list-style: none;
-    text-align: center;
     text-transform: uppercase;
     letter-spacing: 0.1875em;
     line-height: 1;
@@ -26,7 +28,7 @@ body{
     color: rgba(255,255,204,0.9);
     text-decoration: none;
     display: table-cell;
-    font-size: 16px;
+    width:33%;
 }
 #header li a{
     color:inherit;
@@ -34,4 +36,9 @@ body{
     width:100%;
     height:100%;
     padding: 0.5em 0;
+    cursor:pointer;
+}
+#none {
+    color: rgba(102,51,0,0.9);
+    font-size: 18px;
 }
