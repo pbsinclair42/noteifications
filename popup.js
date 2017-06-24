@@ -37,7 +37,7 @@ function processNotificationsAPI(response){
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
     if (Date.parse(item['published']) > date) {
-      newNotifications.push(item['title'])
+      newNotifications.push({'text':item['title'], 'id':item['title'].hashCode()});
     } else {
       break
     }
@@ -49,12 +49,17 @@ function processNotificationsAPI(response){
 function addNotificationsToUI(notifications){
   var notificationsUI = document.getElementById('notifications');
   for (var i = 0; i < notifications.length; i++) {
-    notification = notifications[i];
+    var notification = notifications[i];
     //TODO
     var newNotification = document.createElement('div');
-    newNotification.innerHTML = notification;
-    newNotification.classList.add(notification.hashCode());
+    newNotification.innerHTML = notification.text;
+    newNotification.id = notification.id;
+    newNotification.onclick = function(){
+      removeNotification(this.id);
+    };
     notificationsUI.insertBefore(newNotification, notificationsUI.firstChild);
+
+    chrome.browserAction.setBadgeText({'text':storedData.notifications.length.toString()});
 
     document.getElementById('none').style = "display:none";
   }
@@ -66,26 +71,35 @@ function addNotifications(notifications){
   addNotificationsToUI(notifications);
 }
 
-function removeNotificationFromUI(notification){
-  //TODO
-  var toRemove = document.getElementsByClassName(notification.hashCode())[0];
+function removeNotificationFromUI(notificationId){
+  var toRemove = document.getElementById(notificationId);
   toRemove.parentNode.removeChild(toRemove);
+
+  chrome.browserAction.setBadgeText({
+    'text':storedData.notifications.length.toString() > 0 ? storedData.notifications.length.toString() : ''
+  });
+
   if (storedData.notifications.length == 0) {
     document.getElementById('none').style = "display:block";
   }
 }
 
-function removeNotification(notification){
-  storedData.notifications.splice(storedData.notifications.indexOf(notification), 1);
+function removeNotification(notificationId){
+  var index = storedData.notifications.findIndex(function(n, i){
+    return n.id == notificationId;
+  });
+  storedData.notifications.splice(index, 1);
   chrome.storage.sync.set({"notifications":storedData.notifications});
-  removeNotificationFromUI(notification);
+  removeNotificationFromUI(notificationId);
 }
 
 function removeAllNotifications(){
   document.getElementById('notifications').innerHTML = '';
   document.getElementById('none').style = "display:block";
   storedData.notifications = [];
-  chrome.storage.sync.set({'notifications':[]})
+  chrome.storage.sync.set({'notifications':[]});
+  chrome.browserAction.setBadgeText({'text':''});
+
 }
 
 function refresh(){
@@ -115,6 +129,7 @@ window.onload = function(){
       // setup()
     }
     addNotificationsToUI(storedData.notifications);
+    setRefreshRate();
   });
 
   url = "https://thesession.org/tunes/27/activity?format=json&perpage=50";
