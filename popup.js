@@ -2,6 +2,18 @@ var storedData;
 var refreshTimer;
 var url; //temp for dev
 
+String.prototype.hashCode = function(){
+  //Source: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+  var hash = 0, i, chr;
+  if (this.length === 0) return hash;
+  for (i = 0; i < this.length; i++) {
+    chr = this.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 
 function httpGetAsync(url, callback){
   var xmlHttp = new XMLHttpRequest();
@@ -35,34 +47,41 @@ function processNotificationsAPI(response){
 }
 
 function addNotificationsToUI(notifications){
+  var notificationsUI = document.getElementById('notifications');
   for (var i = 0; i < notifications.length; i++) {
     notification = notifications[i];
     //TODO
-    document.getElementById('notifications').innerHTML = notification;
+    var newNotification = document.createElement('div');
+    newNotification.innerHTML = notification;
+    newNotification.classList.add(notification.hashCode());
+    notificationsUI.insertBefore(newNotification, notificationsUI.firstChild);
+
     document.getElementById('none').style = "display:none";
   }
 }
 
 function addNotifications(notifications){
-  addNotificationsToUI(notifications);
   storedData.notifications = storedData.notifications.concat(notifications);
   chrome.storage.sync.set({"notifications":storedData.notifications});
+  addNotificationsToUI(notifications);
 }
 
 function removeNotificationFromUI(notification){
   //TODO
-  document.getElementById('notifications').innerHTML = '';
-  document.getElementById('none').style = "display:block";
+  var toRemove = document.getElementsByClassName(notification.hashCode())[0];
+  toRemove.parentNode.removeChild(toRemove);
+  if (storedData.notifications.length == 0) {
+    document.getElementById('none').style = "display:block";
+  }
 }
 
 function removeNotification(notification){
-  removeNotificationFromUI(notification);
   storedData.notifications.splice(storedData.notifications.indexOf(notification), 1);
   chrome.storage.sync.set({"notifications":storedData.notifications});
+  removeNotificationFromUI(notification);
 }
 
 function removeAllNotifications(){
-  //TODO
   document.getElementById('notifications').innerHTML = '';
   document.getElementById('none').style = "display:block";
   storedData.notifications = [];
