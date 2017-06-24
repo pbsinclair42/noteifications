@@ -1,39 +1,35 @@
-	{
+{
   // Required
   "manifest_version": 2,
   "name": "Noteifications",
   "author": "pbsinclair42",
   "version": "0.1",
-
   "description": "Provides easy access to new notifications from TheSession.org",
   "icons": {
     "16": "logo-wee.png",
     "48": "logo.png",
     "128": "icon.png"
   },
-
   "browser_action": {
-    "default_icon": {   
+    "default_icon": {
       "16": "logo-wee.png",
       "48": "logo.png"
     },
     "default_title": "Noteifications",
-    "default_popup": "popup.html"   // TODO
+    "default_popup": "popup.html"
   },
-
   "permissions": [
     "activeTab",
     "storage",
     "https://ajax.googleapis.com/"
   ],
-
   //"options_ui": {
   //  "chrome_style": true,
   //  "page": "options.html" //TODO
   //},
 
   //"background": {
-    // TODO
+  // TODO
   //  "persistent": false
   //},
   //"background_page": "TODO", //TODO
