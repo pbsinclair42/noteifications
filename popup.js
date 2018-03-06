@@ -26,28 +26,29 @@ function httpGetAsync(url, callback){
   xmlHttp.send(null);
 }
 
-function processNotificationsAPI(response){
-  var currentTime = (new Date).getTime().toString();
-  chrome.storage.sync.get("lastTimeChecked", function(retrievedData){
-      var date = retrievedData.lastTimeChecked;
-      var items = JSON.parse(response)['items'];
-      var newNotifications = [];
-      for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        if (Date.parse(item['published']) > date) {
-          newNotifications.push({'text': item['title'], 'id': item['title'].hashCode()});
-        } else {
-          break;
-        }
-      }
-      //TODO: read more if needed
-      addNotifications(newNotifications);
-      document.getElementsByClassName('fa-refresh')[0].classList.remove('fa-spin')
-      chrome.storage.sync.set({
-        'lastTimeChecked': currentTime
+function processNotificationsAPI(response, dateChecked){
+  var date = storedData.lastTimeChecked;
+  var items = JSON.parse(response)['items'];
+  var newNotifications = [];
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (Date.parse(item['published']) > date) {
+      newNotifications.push({
+        'id': (item['title'] + item['published']).hashCode(),
+        'text': item['title'],
+        'url': item['object']['url']
       });
+    } else {
+      break;
     }
-  );
+  }
+  //TODO: read more if needed
+  addNotifications(newNotifications);
+  document.getElementsByClassName('fa-refresh')[0].classList.remove('fa-spin')
+  chrome.storage.sync.set({
+    'lastTimeChecked': dateChecked
+  });
+  storedData.lastTimeChecked = dateChecked;
 }
 
 function addNotificationsToUI(notifications){
@@ -59,6 +60,7 @@ function addNotificationsToUI(notifications){
     newNotification.innerHTML = notification.text;
     newNotification.id = notification.id;
     newNotification.onclick = function(){
+      openNotification(this.id);
       removeNotification(this.id);
     };
     newNotification.style = 'display:block;';
@@ -102,7 +104,7 @@ function removeNotificationFromUI(notificationId){
 
 function removeNotification(notificationId){
   var index = storedData.notifications.findIndex(function(n, i){
-    return n.id === notificationId;
+    return n.id == notificationId;
   });
   storedData.notifications.splice(index, 1);
   chrome.storage.sync.set({"notifications": storedData.notifications});
@@ -119,7 +121,10 @@ function removeAllNotifications(){
 }
 
 function refresh(){
-  httpGetAsync(url, processNotificationsAPI);
+  var currentTime = (new Date).getTime().toString();
+  httpGetAsync(url, function(response){
+    processNotificationsAPI(response, currentTime);
+  });
   document.getElementsByClassName('fa-refresh')[0].classList.add("fa-spin");
   setRefreshRate();
 }
@@ -130,15 +135,35 @@ function setRefreshRate(){
 }
 
 function setup(){
+  currentDate = "1520192045000"; //TODO: change from testing value to current date
+  storedData.lastTimeChecked = currentDate;
   chrome.storage.sync.set({
-    "lastTimeChecked": "1520192045000" //TODO: change from testing value to current date
+    "lastTimeChecked": currentDate
   })
   //TODO: setup username
+}
+
+function openNotification(notificationId){
+  console.log(notificationId);
+  console.log(storedData.notifications);
+  var notification = storedData.notifications.find(function(notification){
+    return notification.id == notificationId;
+  });
+  window.open(notification.url);
 }
 
 window.onload = function(){
 
   document.getElementById('refresh').onclick = refresh;
+
+  url = "https://thesession.org/members/" + userId + "/notifications/tunes?format=json";
+
+  chrome.notifications.onClicked.addListener(function(notificationId){
+    openNotification(notificationId);
+    removeNotification(notificationId);
+    chrome.notifications.clear(notificationId);
+  });
+
   chrome.storage.sync.get({
     "notifications": [],
     "settings": {
@@ -154,12 +179,4 @@ window.onload = function(){
     addNotificationsToUI(storedData.notifications);
     setRefreshRate();
   });
-
-  url = "https://thesession.org/members/" + userId + "/notifications/tunes?format=json";
-
-  chrome.notifications.onClicked.addListener(function(notificationId){
-    //TODO: open the page
-    removeNotification(notificationId);
-    chrome.notifications.clear(notificationId);
-  })
 };
