@@ -70,7 +70,9 @@ function addNotificationsToUI(notifications){
   chrome.browserAction.setBadgeText({
     'text': storedData.notifications.length.toString() > 0 ? storedData.notifications.length.toString() : ''
   });
-  document.getElementById('none').style = "display:none";//TODO
+  if (storedData.notifications.length > 0) {
+    document.getElementById('none').style = "display:none";
+  }
 }
 
 function addNotifications(notifications){
