@@ -41,6 +41,28 @@ body{
 #none {
     color: rgba(102,51,0,0.9);
     font-size: 18px;
+    display: flex;
+    align-items: stretch;
+    border-bottom: solid 1px rgba(102, 51, 0, 0.1);
+}
+.notificationText {
+    flex-basis: 90%;
+    padding: 5px;
+}
+.closeBtn {
+    flex-basis: 10%;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-left: solid 1px rgba(102, 51, 0, 0.1);
+    cursor: pointer;
+}
+.closeBtn:hover {
+    background-color: rgba(102, 51, 0, 0.05);
+    color: rgba(102, 51, 0, 0.75);
+}
+.x {
+    flex-grow: 1;
 }
 .notification {
     color: rgba(102,51,0,0.9);

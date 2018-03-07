@@ -55,15 +55,19 @@ function addNotificationsToUI(notifications){
   var notificationsUI = document.getElementById('notifications');
   for (var i = 0; i < notifications.length; i++) {
     var notification = notifications[i];
-    //TODO
     var newNotification = document.getElementById('notificationTemplate').cloneNode(true);
-    newNotification.innerHTML = notification.text;
     newNotification.id = notification.id;
-    newNotification.onclick = function(){
-      openNotification(this.id);
-      removeNotification(this.id);
+    newNotification.children[0].innerHTML = notification.text;
+    console.log(newNotification);
+    console.log(newNotification.children);
+    newNotification.children[0].onclick = function(){
+      openNotification(this.parentElement.id);
+      removeNotification(this.parentElement.id);
     };
-    newNotification.style = 'display:block;';
+    newNotification.children[1].onclick = function(){
+      removeNotification(this.parentElement.id);
+    };
+    newNotification.style = 'display: flex;';
     notificationsUI.insertBefore(newNotification, notificationsUI.firstChild);
   }
 
