@@ -76,6 +76,9 @@ function addNotificationsToUI(notifications){
   });
   if (storedData.notifications.length > 0) {
     document.getElementById('none').style = "display:none";
+    chrome.browserAction.setIcon({path: "logo.png"});
+  } else {
+    chrome.browserAction.setIcon({path: "logobw.png"});
   }
 }
 
@@ -105,6 +108,7 @@ function removeNotificationFromUI(notificationId){
 
   if (storedData.notifications.length === 0) {
     document.getElementById('none').style = "display:block";
+    chrome.browserAction.setIcon({path: "logobw.png"})
   }
 }
 

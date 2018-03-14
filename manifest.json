@@ -12,8 +12,8 @@
   },
   "browser_action": {
     "default_icon": {
-      "16": "logo-wee.png",
-      "48": "logo.png"
+      "16": "logobw.png",
+      "48": "logobw.png"
     },
     "default_title": "Noteifications",
     "default_popup": "popup.html"
